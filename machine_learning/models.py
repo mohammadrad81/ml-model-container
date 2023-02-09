@@ -22,6 +22,7 @@ class MachineLearningModel(models.Model):
         else:
             y = np.array(y)
             ml_model.fit(x, y)
+        pickle.dump(ml_model, self.file.path)
 
     def transform(self, x):
         x = np.array(x)
@@ -31,7 +32,9 @@ class MachineLearningModel(models.Model):
     def fit_transform(self, x):
         x = np.array(x)
         ml_model = self.load()
-        return ml_model.fit_transform(x).tolist()
+        result = ml_model.fit_transform(x).tolist()
+        pickle.dump(ml_model, self.file.path)
+        return result
 
     def predict(self, x):
         x = np.array(x)
