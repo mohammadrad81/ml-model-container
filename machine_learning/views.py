@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from rest_framework import permissions
 from rest_framework.views import APIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import MachineLearningModel
+from .serializers import MachineLearningModelSerializer
 
 
 class FitView(APIView):
@@ -60,3 +62,12 @@ class PredictProbaView(APIView):
         machine_learning_model = MachineLearningModel.objects.get(pk=pk)
         transformed_data = machine_learning_model.predict_proba(x)
         return Response({'result': transformed_data}, status=status.HTTP_200_OK)
+
+
+class CreateMLModelView(CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = MachineLearningModelSerializer
+    queryset = MachineLearningModel.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(owner = self.request.user)
