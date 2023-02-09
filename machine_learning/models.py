@@ -9,6 +9,7 @@ class MachineLearningModel(models.Model):
     name = models.CharField(max_length=200, blank=True, default='')
     description = models.TextField(blank=True, default='')
     file = models.FileField(null=False)
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def load(self):
         ml_model = pickle.load(self.file)
