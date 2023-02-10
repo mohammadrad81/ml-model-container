@@ -15,7 +15,7 @@ class FitView(APIView):
         data = request.data
         x = data['x']
         y = data.get('y', None)
-        machine_learning_model = MachineLearningModel.objects.get(pk=pk)
+        machine_learning_model = MachineLearningModel.objects.get(pk=pk, owner=self.request.user)
         machine_learning_model.fit(x, y)
         return Response({"message": f"model with id {pk} fitted with data"}, status=status.HTTP_200_OK)
 
@@ -26,7 +26,7 @@ class TransformView(APIView):
     def post(self, request, pk):
         data = request.data
         x = data['x']
-        machine_learning_model = MachineLearningModel.objects.get(pk=pk)
+        machine_learning_model = MachineLearningModel.objects.get(pk=pk, owner=self.request.user)
         transformed_data = machine_learning_model.transform(x)
         return Response({'result': transformed_data}, status=status.HTTP_200_OK)
 
@@ -37,7 +37,7 @@ class FitTransformView(APIView):
     def post(self, request, pk):
         data = request.data
         x = data['x']
-        machine_learning_model = MachineLearningModel.objects.get(pk=pk)
+        machine_learning_model = MachineLearningModel.objects.get(pk=pk, owner=self.request.user)
         transformed_data = machine_learning_model.fit_transform(x)
         return Response({'result': transformed_data}, status=status.HTTP_200_OK)
 
@@ -48,7 +48,7 @@ class PredictView(APIView):
     def post(self, request, pk):
         data = request.data
         x = data['x']
-        machine_learning_model = MachineLearningModel.objects.get(pk=pk)
+        machine_learning_model = MachineLearningModel.objects.get(pk=pk, owner=self.request.user)
         transformed_data = machine_learning_model.predict(x)
         return Response({'result': transformed_data}, status=status.HTTP_200_OK)
 
@@ -59,7 +59,7 @@ class PredictProbaView(APIView):
     def post(self, request, pk):
         data = request.data
         x = data['x']
-        machine_learning_model = MachineLearningModel.objects.get(pk=pk)
+        machine_learning_model = MachineLearningModel.objects.get(pk=pk, owner=self.request.user)
         transformed_data = machine_learning_model.predict_proba(x)
         return Response({'result': transformed_data}, status=status.HTTP_200_OK)
 
