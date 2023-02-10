@@ -3,7 +3,7 @@ import pickle
 from django.shortcuts import render, redirect, reverse
 from rest_framework import permissions
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, CreateAPIView
+from rest_framework.generics import ListCreateAPIView, CreateAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import MachineLearningModel
@@ -81,6 +81,7 @@ class CreateMLModelView(ListCreateAPIView):
 
 
 class CreateMLModelOnlineView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         res = {"available_models": ml.models_dict.keys()}
@@ -91,11 +92,20 @@ class CreateMLModelOnlineView(APIView):
         ml_model_algorithm_name = data['ml_model_algorithm']
         ml_model_algorithm = ml.models_dict.get(ml_model_algorithm_name)
         address = f'ml_models/{uuid.uuid4()}'
-        with open(address) as f:
+        with open(address, 'wb') as f:
             pickle.dump(ml_model_algorithm, f)
+        with open(address, 'rb') as f:
             ml_model = MachineLearningModel.objects.create(name=data['name'],
                                                            owner=self.request.user,
-                                                           description='',
+                                                           description=data['description'],
                                                            file=File(f))
         serializer = MachineLearningModelSerializer(instance=ml_model)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class DestroyMLModelView(DestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = MachineLearningModelSerializer
+
+    def get_queryset(self):
+        return MachineLearningModel.objects.filter(owner=self.request.user, pk=self.kwargs['pk'])
