@@ -12,8 +12,13 @@ class MachineLearningModel(models.Model):
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def load(self):
-        ml_model = pickle.load(self.file)
+        with open(self.file.path, 'rb') as f:
+            ml_model = pickle.load(f)
         return ml_model
+    
+    def save(self, ml_model):
+        with open(self.file.path, 'wb') as f:
+            pickle.dump(ml_model, f)
 
     def fit(self, x, y=None):
         x = np.array(x)
@@ -23,7 +28,7 @@ class MachineLearningModel(models.Model):
         else:
             y = np.array(y)
             ml_model.fit(x, y)
-        pickle.dump(ml_model, self.file.path)
+        self.save(ml_model)
 
     def transform(self, x):
         x = np.array(x)
@@ -34,7 +39,7 @@ class MachineLearningModel(models.Model):
         x = np.array(x)
         ml_model = self.load()
         result = ml_model.fit_transform(x).tolist()
-        pickle.dump(ml_model, self.file.path)
+        self.save(ml_model)
         return result
 
     def predict(self, x):
