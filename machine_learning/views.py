@@ -1,3 +1,5 @@
+import pickle
+
 from django.shortcuts import render, redirect, reverse
 from rest_framework import permissions
 from rest_framework.views import APIView
@@ -6,6 +8,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import MachineLearningModel
 from .serializers import MachineLearningModelSerializer
+from . import ml
+import uuid
+from django.core.files.base import ContentFile, File
 
 
 class FitView(APIView):
@@ -69,7 +74,28 @@ class CreateMLModelView(ListCreateAPIView):
     serializer_class = MachineLearningModelSerializer
 
     def perform_create(self, serializer):
-        serializer.save(owner = self.request.user)
+        serializer.save(owner=self.request.user)
 
     def get_queryset(self):
         return MachineLearningModel.objects.filter(owner=self.request.user)
+
+
+class CreateMLModelOnlineView(APIView):
+
+    def get(self, request):
+        res = {"available_models": ml.models_dict.keys()}
+        return Response(res, status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        ml_model_algorithm_name = data['ml_model_algorithm']
+        ml_model_algorithm = ml.models_dict.get(ml_model_algorithm_name)
+        address = f'ml_models/{uuid.uuid4()}'
+        with open(address) as f:
+            pickle.dump(ml_model_algorithm, f)
+            ml_model = MachineLearningModel.objects.create(name=data['name'],
+                                                           owner=self.request.user,
+                                                           description='',
+                                                           file=File(f))
+        serializer = MachineLearningModelSerializer(instance=ml_model)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
