@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import FitView, FitTransformView, TransformView, PredictView,\
-    PredictProbaView, CreateMLModelView, CreateMLModelAccomplishedView
+    PredictProbaView, CreateMLModelView
 
 urlpatterns = [
     path('api/fit/<int:pk>/', FitView.as_view(), name='fit'),
