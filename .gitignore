@@ -3,3 +3,4 @@
 *.pyc
 *.pyd
 db.sqlite3
+.idea

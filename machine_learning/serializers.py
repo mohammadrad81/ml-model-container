@@ -5,8 +5,9 @@ from rest_framework.fields import CurrentUserDefault
 
 
 class MachineLearningModelSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+    owner = serializers.CharField(source='owner.username', read_only=True)
 
     class Meta:
         model = MachineLearningModel
         fields = '__all__'
-        read_only_fields = ('owner',)
