@@ -1,5 +1,7 @@
 import pickle
 from django.shortcuts import render, redirect, reverse
+from django.http import FileResponse
+from django import views
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, CreateAPIView, DestroyAPIView
@@ -111,3 +113,23 @@ class DestroyMLModelView(DestroyAPIView):
 
     def get_queryset(self):
         return MachineLearningModel.objects.filter(owner=self.request.user, pk=self.kwargs['pk'])
+
+
+class ListMLModelView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        queryset = MachineLearningModel.objects.filter(owner=self.request.user)
+        serializer = MachineLearningModelSerializer(data=queryset, many=True)
+        serializer.is_valid()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class DownloadMLModelView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, pk):
+        machine_learning_model = MachineLearningModel.objects.get(pk=pk, owner=self.request.user)
+        file_path = machine_learning_model.file.path
+        file_response = FileResponse(open(file_path, 'rb'))
+        return file_response

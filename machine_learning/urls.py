@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import FitView, FitTransformView, TransformView, PredictView,\
-    PredictProbaView, CreateMLModelView, CreateMLModelOnlineView, DestroyMLModelView
+    PredictProbaView, CreateMLModelView, CreateMLModelOnlineView, DestroyMLModelView,\
+    ListMLModelView, DownloadMLModelView
 
 urlpatterns = [
     path('fit/<int:pk>/', FitView.as_view(), name='fit'),
@@ -17,4 +18,10 @@ urlpatterns = [
     path('delete-ml-model/<int:pk>/',
          DestroyMLModelView.as_view(),
          name='delete-ml-model'),
+    path('list-ml-model/',
+         ListMLModelView.as_view(),
+         name='list-ml-model'),
+    path('download-ml-model/<int:pk>/',
+         DownloadMLModelView.as_view(),
+         name='download-ml-model')
 ]
