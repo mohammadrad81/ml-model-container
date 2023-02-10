@@ -1,5 +1,4 @@
 import pickle
-
 from django.shortcuts import render, redirect, reverse
 from rest_framework import permissions
 from rest_framework.views import APIView
@@ -91,7 +90,7 @@ class CreateMLModelOnlineView(APIView):
     def post(self, request):
         data = request.data
         ml_model_algorithm_name = data['ml_model_algorithm']
-        ml_model_algorithm = ml.models_dict.get(ml_model_algorithm_name)
+        ml_model_algorithm = ml.models_dict.get(ml_model_algorithm_name)(**data['hyper_params'])
         if not os.path.isdir("ml_models"):
             os.makedirs('ml_models')
         address = f'ml_models/{uuid.uuid4()}'
