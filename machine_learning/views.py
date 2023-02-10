@@ -11,6 +11,7 @@ from .serializers import MachineLearningModelSerializer
 from . import ml
 import uuid
 from django.core.files.base import ContentFile, File
+import os
 
 
 class FitView(APIView):
@@ -91,6 +92,8 @@ class CreateMLModelOnlineView(APIView):
         data = request.data
         ml_model_algorithm_name = data['ml_model_algorithm']
         ml_model_algorithm = ml.models_dict.get(ml_model_algorithm_name)
+        if not os.path.isdir("ml_models"):
+            os.makedirs('ml_models')
         address = f'ml_models/{uuid.uuid4()}'
         with open(address, 'wb') as f:
             pickle.dump(ml_model_algorithm, f)
